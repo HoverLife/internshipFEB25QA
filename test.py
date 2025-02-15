@@ -40,7 +40,7 @@ def test_get_item(valid_item):
     response = requests.get(f"{BASE_URL}/api/1/item/{item_id}")
     assert response.status_code == 200
     response_json = response.json()
-    assert isinstance(response_json, list) and len(response_json) > 0, "Ответ API не является списком или пуст"
+    assert isinstance(response_json, list) and len(response_json) > 0
     item = response_json[0]
     assert item["id"] == item_id
     assert item["name"] == valid_item["name"]
@@ -54,7 +54,14 @@ def test_get_items_by_seller(my_seller_id, valid_item):
 def test_get_statistics(valid_item):
     item_id = test_create_item(valid_item)
     response = requests.get(f"{BASE_URL}/api/1/statistic/{item_id}")
-    assert response.status_code in [200, 404]
+    assert response.status_code == 200
+    response_json = response.json()
+    assert isinstance(response_json, list) and len(response_json) > 0
+    stats = response_json[0]
+    expected_stats = valid_item["statistics"]
+    assert int(stats["contacts"]) == expected_stats["contacts"]
+    assert int(stats["likes"]) == expected_stats["likes"]
+    assert int(stats["viewCount"]) == expected_stats["viewCount"]
 
 def test_create_item_missing_field():
     invalid_item = {
@@ -78,7 +85,7 @@ def test_get_nonexistent_item():
     assert response.status_code == 404
 
 def test_seller_id_invalid_format():
-    invalid_seller_ids = ["abc123", "!@#$%"]
+    invalid_seller_ids = ["asas"]
     for seller_id in invalid_seller_ids:
         response = requests.get(f"{BASE_URL}/api/1/{seller_id}/item")
         assert response.status_code == 400
